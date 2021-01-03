@@ -1,0 +1,14 @@
+[] Format the data with pandas and output it to a csv file
+[] Connect a database to the parser so that once we have the data it gets
+	stored into the database and we can then query from there!
+[] Figure out how to get user input for create the query and have that 
+	be customizable instead of me harcoding the 'coffee+shop' for
+	the query
+	Idea: I can have an input arg[] into the script which I can use
+	to pass in the input for each user. Get some keywords based on
+	goals that they have made and use that to create their filters
+	Maybe have an option to search for suggestions and then the 
+	user can input some keyword and then have that be send to the
+	spider -> scrape data -> store to the db -> query the spider db
+	-> send the data suggestions to the user and then have that be 
+	used for creating their goals??

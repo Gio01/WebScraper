@@ -1,32 +1,86 @@
 import scrapy
+import pandas as pd
+from urllib.parse import urlencode
+from urllib.parse import urlparse
+import json
+from datetime import datetime
+import os
+
+API_KEY = os.getenv('API_KEY')
+
+"""
+We are creating a proxy link that we can target our requests to. In reality
+this link will tell the scraperapi to go and fetch the requests that we want
+from all of the diff proxies that they give us so that we do not get banned
+by google for calling so many requests to them (might look like a DoS coming
+from me so... yah)
+"""
+
+
+def get_url(url):
+    payload = {'api_key': API_KEY, 'url': url, 'autoparse': 'true',
+               'country_code': 'us'}
+    proxy_url = 'http://api.scraperapi.com/?' + urlencode(payload)
+    return proxy_url
+
+
+"""
+We are creating the google search queries that we will use for the google
+requests. We are doing it dynamically so that we can properly automate the
+big number of requests
+
+site
+    we can specify a certain site we want to query
+query
+    value we would pass to a google search via the proxies
+"""
+
+
+def create_google_url(query, site=''):
+    google_dictionary = {'q': query, 'num': 100}
+    if site:
+        web = urlparse(site).netloc
+        google_dictionary['as_sitesearch'] = web
+        return 'http://www.google.com/search?' + urlencode(google_dictionary)
+    return 'http://www.google.com/search?' + urlencode(google_dictionary)
+
 
 class SuggestionsSpider(scrapy.Spider):
-	name = "tasks"
-		
-	def start_requests(self):
-		scrape_urls = [
-			'https://www.brainyquote.com/topics/motivational-quotes'
-		]
-	
-	#by using yield we are creating a generator object which we can use to iterate. So here
-	#we are essentially just calling the request func from scrapy and then iterating it on the
-	#diff url links that we are giving it and in each iteration we are also parsing the 
-	#data we get back from each of the url requests.
+    name = 'tasks'
+    allowed_domains = ['api.scraperapi.com']
+    #these settings are for the free Scaper API plan!
+    custom_settings = {'ROBOTSTXT_OBEY': False, 'LOG_LEVEL': 'INFO',
+                       'CONCURRENT_REQUESTS_PER_DOMAIN': 10}
 
-	#the reason we use yield is that since we are going through a lot of data, by yielding we are
-	#stopping for each scrapy.Request to fully terminate before going to the next iteration of the
-	#urls. Hence we do not need to run through all the urls and use up a lot of memory space and
-	#run through them one by one which requires less memory! (yiels gives us a generator = iterable obj 
-		for url in scrape_urls:
-			yield scrapy.Request(url=url, callback=self.parse)
+    """
+    we create the query for the google search by calling the create_google_url
+    function we craeted above and then passing it a url query. If the
+    query has more than one word then we need to append the work with the +
+    as we would normally do when doing a query in the url!
+    """
 
-	#we parse the html source code of the location we scraped from which are the url links in the
-	#start url object we created! We then are creting a file to save that source code from which 
-	#we can then use to parse the data and see what we can find and hence be able to extract
-	#exactly the certain components that we need for making the task suggestions!
-	def parse(self, response):
-		page = response.url.split("/")[-2]
-		filename = f'tasks-{page}.html'
-		with open(filename, 'wb') as f:
-			f.write(response.body)
+    def start_requests(self):
+        url = create_google_url('coffee+shops')
+
+        yield scrapy.Request(get_url(url), callback=self.parse,
+                                 meta={'pos': 0})
+
+    def parse(self, response):
+        data = json.loads(response.text)
+        position = response.meta['pos']
+        data_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        for res in data['organic_results']:
+            title = res['title']
+            snippet = res['snippet']
+            link = res['link']
+            item = {'title': title, 'snippet': snippet, 'link': link, 'pos':
+                    position, 'date':  data_time}
+            position += 1
+            yield item
+
+        next_web_page = data['pagination']['nextPageUrl']
+        if next_web_page:
+            yield scrapy.Request(get_url(next_web_page), callback=self.parse,
+                                 meta={'pos': position})
+
 

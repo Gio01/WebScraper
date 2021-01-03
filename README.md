@@ -9,6 +9,7 @@ can not only help the user but also enhance the user experience on the app.
 
 This is a prototype for understanding how web scraping works and to see if the scraper can be used in a dynamic way to taylor to the different users
 on 30Yourself.
+
 ---
 Future Goals:
 

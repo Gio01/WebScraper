@@ -37,7 +37,7 @@ query
 """
 
 
-def create_google_url(query, site=''):
+def create_google_url(query):
     google_dictionary = {'q': query, 'num': 100}
 
     return 'http://www.google.com/search?' + urlencode(google_dictionary)

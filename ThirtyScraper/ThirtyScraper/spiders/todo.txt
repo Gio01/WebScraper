@@ -1,4 +1,4 @@
-[] Format the data with pandas and output it to a csv file
+[X] Format the data and output it to a csv file
 [] Connect a database to the parser so that once we have the data it gets
 	stored into the database and we can then query from there!
 [] Figure out how to get user input for create the query and have that 

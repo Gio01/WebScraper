@@ -10,9 +10,10 @@ can not only help the user but also enhance the user experience on the app.
 This is a prototype for understanding how web scraping works and to see if the scraper can be used in a dynamic way to taylor to the different users
 on 30Yourself.
 
+
+The Web Scraper is hosted using Scrapy Cloud.
 ---
 Future Goals:
 
 Add user scraped data into a database so that it can get rendered in the app for each user to see.
-Protentially introduce Machine Learning so that we can automate the task of looking at user trends and be able to create better suggestions for each user based
-on what things they decide to add to their goals list. 
+Protentially introduce Machine Learning so that we can automate the task of looking at user trends and be able to create better suggestions for each user based on what things they decide to add to their goals list. 

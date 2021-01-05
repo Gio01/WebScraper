@@ -81,10 +81,10 @@ class SuggestionsSpider(scrapy.Spider):
             title = res['title']
             snippet = res['snippet']
             link = res['link']
-            web_page_data = {'title': title, 'snippet': snippet, 'link': link,
+            item = {'title': title, 'snippet': snippet, 'link': link,
                              'pos': position, 'date':  queried_time}
             position += 1
-            yield web_page_data
+            yield item
         # If another page exists in the query search then get that page's data
         next_web_page = data['pagination']['nextPageUrl']
         if next_web_page and position < 10:

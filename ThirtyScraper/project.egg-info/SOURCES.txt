@@ -5,7 +5,7 @@ ThirtyScraper/middlewares.py
 ThirtyScraper/pipelines.py
 ThirtyScraper/settings.py
 ThirtyScraper/spiders/__init__.py
-ThirtyScraper/spiders/settings.py
+ThirtyScraper/spiders/env.py
 ThirtyScraper/spiders/thirty_spider.py
 project.egg-info/PKG-INFO
 project.egg-info/SOURCES.txt

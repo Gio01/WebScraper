@@ -3,7 +3,10 @@ from urllib.parse import urlencode
 import json
 from datetime import datetime
 import os
-
+# from scrapy.crawler import CrawlerProcess
+# from scrapy.utils.project import get_project_settings
+# from scrapy.exceptions import CloseSpider
+from scrapy import Selector
 API_KEY = os.getenv('API_KEY')
 
 # To run: scrapy crawl tasks -o test.csv
@@ -38,7 +41,8 @@ query
 
 
 def create_google_url(query):
-    google_dictionary = {'q': query, 'num': 100}
+    # num is the number of result links we want per google result page
+    google_dictionary = {'q': query, 'num': 2}
 
     return 'http://www.google.com/search?' + urlencode(google_dictionary)
 
@@ -47,6 +51,8 @@ class SuggestionsSpider(scrapy.Spider):
     name = 'tasks'
     allowed_domains = ['api.scraperapi.com']
     # these settings are for the free Scaper API plan!
+    # the original req per domain was 10
+
     custom_settings = {'ROBOTSTXT_OBEY': False, 'LOG_LEVEL': 'INFO',
                        'CONCURRENT_REQUESTS_PER_DOMAIN': 10}
 
@@ -75,18 +81,19 @@ class SuggestionsSpider(scrapy.Spider):
     """
     def parse(self, response):
         data = json.loads(response.text)
-        position = response.meta['pos']
-        queried_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        #position = response.meta['pos']
+        #queried_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # url_links = []
         for res in data['organic_results']:
             title = res['title']
-            snippet = res['snippet']
-            link = res['link']
-            item = {'title': title, 'snippet': snippet, 'link': link,
-                             'pos': position, 'date':  queried_time}
-            position += 1
-            yield item
-        # If another page exists in the query search then get that page's data
-        next_web_page = data['pagination']['nextPageUrl']
-        if next_web_page and position < 10:
-            yield scrapy.Request(get_url(next_web_page), callback=self.parse,
-                                 meta={'pos': position})
+            # snippet = res['snippet']
+            # url_links.append(res['link'])
+            #item = {'title': title, 'link': link}
+            #position += 1
+            # If another page exists in the query search then get that page's
+            # data
+            yield scrapy.Request(res['link'], callback=self.parse_page)
+
+    def parse_page(self, response):
+        # sel = Selector(response)
+        print(response.xpath('//title/text()')).getall()

@@ -3,6 +3,9 @@ from urllib.parse import urlencode
 import json
 from datetime import datetime
 import os
+# from scrapy.crawler import CrawlerProcess
+# from scrapy.utils.project import get_project_settings
+# from scrapy.exceptions import CloseSpider
 
 API_KEY = os.getenv('API_KEY')
 
@@ -47,8 +50,14 @@ class SuggestionsSpider(scrapy.Spider):
     name = 'tasks'
     allowed_domains = ['api.scraperapi.com']
     # these settings are for the free Scaper API plan!
+    # the original req per domain was 10
+    """
     custom_settings = {'ROBOTSTXT_OBEY': False, 'LOG_LEVEL': 'INFO',
-                       'CONCURRENT_REQUESTS_PER_DOMAIN': 10}
+                       'CONCURRENT_REQUESTS_PER_DOMAIN': 200,
+                       'CONCURRENT_REQUESTS': 50, 'DOWNLOAD_TIMEOUT': 100,
+                       'DOWNLOAD_DELAY': 0.5}
+
+    """
 
     """
     we create the query for the google search by calling the create_google_url
@@ -81,12 +90,20 @@ class SuggestionsSpider(scrapy.Spider):
             title = res['title']
             snippet = res['snippet']
             link = res['link']
-            item = {'title': title, 'snippet': snippet, 'link': link,
-                             'pos': position, 'date':  queried_time}
+            item = {'title': title, 'snippet': snippet,
+                    'link': link,
+                    'pos': position, 'date':  queried_time}
             position += 1
-            yield item
-        # If another page exists in the query search then get that page's data
-        next_web_page = data['pagination']['nextPageUrl']
-        if next_web_page and position < 10:
-            yield scrapy.Request(get_url(next_web_page), callback=self.parse,
+            # If another page exists in the query search then get that page's
+            # data
+            """
+            next_web_page = data['pagination']['nextPageUrl']
+            if next_web_page and position < 50:
+                yield scrapy.Request(get_url(next_web_page),
+                                callback=self.parse,
                                  meta={'pos': position})
+            """
+            if position <= 10:
+                yield item
+            else:
+                break

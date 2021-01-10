@@ -18,7 +18,7 @@ LOG_LEVEL = 'INFO'
 #USER_AGENT = 'ThirtyScraper (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = False
+ROBOTSTXT_OBEY = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 CONCURRENT_REQUESTS = 20
@@ -26,11 +26,11 @@ CONCURRENT_REQUESTS = 20
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 0.5
-DOWNLOAD_TIMEOUT = 100
+#DOWNLOAD_DELAY = 0.5
+#DOWNLOAD_TIMEOUT = 100
 #RANDOMIZE_DOWNLOAD_DELAY = 1
 # The download delay setting will honor only one of:
-CONCURRENT_REQUESTS_PER_DOMAIN = 200
+CONCURRENT_REQUESTS_PER_DOMAIN = 10
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
